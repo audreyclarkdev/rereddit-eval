@@ -1,34 +1,55 @@
+// Create an object to store posts
+const posts = {};
 
-// Adding a new post
-document.getElementById('submitPost').addEventListener('click', function () {
+// Function to add a new post
+function addPost(name, text) {
+  const postId = Object.keys(posts).length + 1;
+  posts[postId] = {
+    name,
+    text,
+    comments: [],
+  };
+};
 
-  // accessing posts div
-  const postsDiv = document.querySelector('.posts');
-
-  // input fields
-  const inputName = document.getElementById('name');
-  const inputPostText = document.getElementById('post-msg');
-
-  // creating and adding elements for a block of posts' text content
-  const newPost = document.createElement('div');
-  const newPostTextP = document.createElement('p');
-  const newPostTextNode = document.createTextNode(inputPostText.value);
-
-  newPostTextP.append(newPostTextNode);
-
-  const newPostName = document.createElement('p');
-  const newPostNameNode = document.createTextNode('Posted By: ' + inputName.value);
-
-  // making the name element bold
-  newPostName.style.fontWeight = 'bold';
-  newPostName.style.fontSize = '14px';
-  newPostName.appendChild(newPostNameNode);
-
-  // creates a break line between posts
-  const newPostHr = document.createElement('hr');
-
+// Function to display posts
+function displayPosts() {
+  const postsContainer = document.getElementsByClassName('posts')[0];
+  postsContainer.innerHTML = '';
   
-  // Create delete button, style it and append it
+  for (const postId in posts) {
+    const post = posts[postId];
+    
+    postsContainer.innerHTML = `
+      <p>${post.text}</p>
+      <p><strong>${'- Posted by '+ post.name}</strong></p>
+      <button class="open-comments btn btn-warning">Comments</button>
+      <button class="delete-btn btn btn-danger pull-right fa-solid fa-delete-left"></button>
+      <div class="comments-container">
+        <ul>
+        ${post.comments.map((comment) => `<li>${comment}</li>`).join('')}
+        </ul>
+      </div>
+      <hr>
+    `;
+  }
+};
+
+// Event listener for submitting a new post
+document.getElementById('submit-post').addEventListener('click', () => {
+  const postText = document.getElementById('post-msg').value;
+  const postName = document.getElementById('name').value;
+
+  if (postText !== '' && postName !== '') {
+    addPost(postName, postText);
+    displayPosts();
+    document.getElementById('post-msg').value = '';
+    document.getElementById('name').value = '';
+  } else {
+    alert('Please fill in both fields.');
+  }
+});
+
+  // Create delete button and add classes 
   const deleteBtn = document.createElement('button');
   deleteBtn.setAttribute('id', 'delete-btn');
   deleteBtn.setAttribute('type', 'button');
@@ -36,26 +57,30 @@ document.getElementById('submitPost').addEventListener('click', function () {
   deleteBtn.addEventListener('click', function () {
     this.parentElement.remove()
   });
-  
-  // Comment post div, similar to postsDiv
-  const commentPostDiv = document.createElement('div');
-  commentPostDiv.setAttribute('class', 'comments');
 
-  // Adding a comment to a post 
-  const commentBtn = document.createElement('button');
-  commentBtn.setAttribute('id', 'comment-btn');
-  commentBtn.setAttribute('type', 'button');
-  commentBtn.setAttribute('class', 'btn btn-warning');
-  commentBtn.appendChild(document.createTextNode('Post a Comment'));
+// Function to add a comment to a post
+function addComment(postId, comment) {
+  if (posts[postId]) {
+    posts[postId].comments.push(comment);
+  } else {
+    console.error(`Post with ID ${postId} does not exist. Cannot push comment.`);
+  }
+};
 
-  // adding comment form section
-  const commentForm = document.createElement('form');
-  commentForm.setAttribute('style', 'margin-top: 30px');
-  commentForm.setAttribute('onsubmit', 'event.preventDefault();');
+// Function to show the comment input form
+function displayCommentForm() {
+  // Create a comments container
+  const commentsContainer = document.querySelector('.comments-container');
 
-  // creating the comment text div 
-  const commentTextDiv = document.createElement('div');
-  commentTextDiv.setAttribute('class', 'form-group');
+  // Create comment post form
+  const commentPosts = document.createElement('form');
+  commentPosts.setAttribute('class', 'comments');
+  commentPosts.setAttribute('style', 'margin-top: 30px');
+  commentPosts.setAttribute('onsubmit', 'event.preventDefault();');
+
+  // Creating the comment text div 
+  const commentTextP = document.createElement('p');
+  commentTextP.setAttribute('class', 'form-group');
 
   // creating the comment textarea input field
   const inputCommentText = document.createElement('textarea');
@@ -75,20 +100,33 @@ document.getElementById('submitPost').addEventListener('click', function () {
   inputCommentName.setAttribute('class', 'form-control');
   inputCommentName.setAttribute('placeholder', 'Your Name');
 
-  // appending post elements to display on posts div
-  newPost.append(newPostTextP);
-  newPost.append(newPostName);
-  newPost.append(deleteBtn);
-  newPost.append(commentBtn);
-  newPost.append(newPostHr);
-  postsDiv.append(newPost);
+  // creates a break line between posts
+  const dividingLine = document.createElement('hr');
 
-  // clear input fields after posting
-  inputName.value = '';
-  inputPostText.value = '';
+  commentsContainer.append(commentPosts);
+  commentsContainer.append(commentTextP);
+  commentsContainer.append(inputCommentText);
+  commentsContainer.append(commentNameP);
+  commentsContainer.append(inputCommentName);
+  commentsContainer.append(deleteBtn);
+  commentsContainer.append(dividingLine);
 
+  return commentsContainer;
+};
 
-
+// Button and event listener for the comment input functionality
+const commentFormBtn = document.querySelector('.open-comments');
+commentFormBtn.addEventListener('click', function () {
+  displayCommentForm();
 });
 
+// // delete button for comments
+// function deletePost(event) {
+//   if(event.target.classList.contains('delete-btn')){
+//     const li = event.target.parentElement;
+//     commentsContainer.removeChild(li);
+//   }
+// }
 
+// Initial display of posts
+displayPosts();
