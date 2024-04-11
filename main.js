@@ -21,7 +21,7 @@ const displayPosts = function (displayPostId) {
   let storedPosts = '';
   for (const postId in postsObj) {
     const post = postsObj[postId];
-    storedPosts = storedPosts + `
+    storedPosts += `
       <div id="${postId}" >
         <p>${post.text}</p>
         <p><strong>${'- Posted by '+ post.name}</strong></p>
@@ -29,7 +29,7 @@ const displayPosts = function (displayPostId) {
         <button class="delete-btn btn btn-danger pull-right fa-solid fa-delete-left"></button>
         <div class="comments-container">
           <ul>
-          ${post.comments.map((comment) => `<li>{comment}</li>`).join('')}
+          ${post.comments.map((comment) => `<li>${comment}</li>`).join('')}
           </ul>
         </div>
       </div>
@@ -65,7 +65,7 @@ postsContainer.addEventListener('click', (event) => {
 // Function to show the comment input form
 const displayCommentForm = function (postId) {
   // Create container for comments and the form for comments
-  const commentsContainer = document.querySelector('.comments-container');
+  const commentsContainer = document.getElementById(postId).getElementsByClassName('comments-container')[0];
     let commentInputForm = document.createElement('div');
     commentInputForm = commentInputForm.innerHTML + `
     <form style="margin-top: 30px" onsubmit="event.preventDefault();">
@@ -86,44 +86,58 @@ const displayCommentForm = function (postId) {
         />
       </div>
     </form>
-    <button id="delete-btn-${postId}" class="btn btn-danger pull-right fa-solid fa-delete-left delete-btn-${postId} delete-comment"></button>
     <button id="submit-comment" class="btn btn-primary" onclick="addComment(${postId})">Submit Comment</button>
     <hr>`;
   
   commentsContainer.innerHTML += commentInputForm;
+  commentsContainer.appendChild(commentInputForm);
 };
 
-// Function to add a comment to a post
+// Event Listener for submitting a comment 
 const addComment = function (postId) {
-  const commentValue = document.getElementById('comment-msg-' + postId).value;
-  if (postsObj[postId]) {
-    postsObj[postId].comments.push(commentValue);
-  } else {
+  const commentText = document.getElementById('comment-msg-' + postId).value;
+  const commentName  = document.getElementById('comment-name-' + postId).value;
+
+  if (commentText !== '' && commentName !== '') {
+    if (postsObj[postId]) {
+    postsObj[postId].comments.push({ text: commentText, name: commentName });
+    displayComments(postId);
+    } else {
     console.error(`Cannot submit this comment.`);
+    }
+    document.getElementById('comment-msg-' + postId).value = '';
+    document.getElementById('comment-name-' + postId).value = '';
+  } else {
+    alert('Please fill in both fields.');
   }
 };
 
 const displayComments = function (postId) {
-  const allComments = postsObj[postId].comments;
+  const post = postsObj[postId];
+  const commentsContainer = document.getElementById(postId).getElementsByClassName('comments-container')[0];
+  commentsContainer.innerHTML = ''; // clear previous comments
 
-  if (allComments) {
-    // Create a container for comments
-    const commentsList = document.createElement('ul');
-    commentsList.classList.add('comments-list');
-    for (let i = 0; i < allComments.length; i++) {
-      const comment = document.createElement('li');
-      comment.innerText = allComments[i];
-      commentsList.appendChild(comment);
-    }
-    
-    commentsContainer.appendChild(commentsList);
-  } else {
-    console.error(`Cannot display comments.`);
-  }
+  // Create a container for comments
+  const commentsList = document.createElement('ul');
+  commentsList.classList.add('comments-list');
+  post.comments.forEach(comment => {
+    const commentItem = document.createElement('li');
+    commentItem.textContent = `${comment.name}: ${comment.text}`;
+    commentsList.appendChild(commentItem);
+  });
+  commentsContainer.appendChild(commentsList);
 };
 
+// create the submit comment button
+const submitCommentBtn = document.createElement('button');
+submitCommentBtn.setAttribute('id', 'submit-comment');
+submitCommentBtn.setAttribute('type', 'button');
+submitCommentBtn.setAttribute('class', 'btn btn-warning');
+submitCommentBtn.appendChild(document.createTextNode('Submit Comment'));
+commentInputForm.appendChild(submitCommentBtn);
+
 // Event listener for submitting a new comment
-document.querySelector('#submit-comment').addEventListener('click', () => {
+submitCommentBtn.addEventListener('click', () => {
   const commentText = document.getElementById('comment-msg').value;
   const commentName = document.getElementById('comment-name').value;
 
@@ -136,33 +150,44 @@ document.querySelector('#submit-comment').addEventListener('click', () => {
   }
 });
 
-// Event listener for deleting a post and comment
-const deleteBtn = document.querySelector('#delete-btn-${postId}');
-deleteBtn.addEventListener('click', (event) => {
-  if(event.target.classList.contains('delete-btn-${postId}')) {
-    // const container = event.target.parentElement;
-    // commentsContainer.removeChild(container);
-    this.parentElement.remove();
-  }
+// Create delete button, style it and add event listener to it
+const deleteBtn = document.createElement('button');
+deleteBtn.setAttribute('id', '`delete-btn-${postId}`');
+deleteBtn.setAttribute('type', 'button');
+deleteBtn.setAttribute('class', 'btn btn-danger pull-right fa-solid fa-delete-left `delete-btn-${postId}`');
+deleteBtn.addEventListener('click', function () {
+  event.target.parentElement.remove()
 });
 
-commentsContainer.addEventListener('click', (event) => {
-  if (event.target.classList.contains('delete-btn-${postId}')) {
-    const postId = event.target.parentElement.id;
-    delete postsObj[postId];
-  }
-});
+// // Event listener for deleting a post and comment
+// const deleteBtn = document.querySelector(`#delete-btn-${postId}`);
+// deleteBtn.addEventListener('click', (event) => {
+//   if(event.target.classList.contains('delete-btn-${postId}')) {
+//     // const container = event.target.parentElement;
+//     // commentsContainer.removeChild(container);
+//     this.parentElement.remove();
+//   }
+// });
+
+// commentsContainer.addEventListener('click', (event) => {
+//   if (event.target.classList.contains(`delete-btn-${postId}`)) {
+//     const postId = event.target.parentElement.id;
+//     delete postsObj[postId];
+//   }
+// });
 
 // Create a button that shows and hides the comments
 const showCommentsBtn = document.createElement('button');
-  showCommentsBtn.setAttribute('class', 'open-comments btn btn-warning');
-  showCommentsBtn.setAttribute('type', 'button');
-  showCommentsBtn.innerHTML = 'Comments';
-  showCommentsBtn.addEventListener('click', () => {
-    const commentsClasses = commentsDiv.classList;
-    if (commentsClasses.contains('d-none')) { 
-        commentsClasses.remove('d-none'); 
-      } else {commentsClasses.add('d-none');
-    };
-  });
-  postsContainer.appendChild(showCommentsBtn);
+showCommentsBtn.setAttribute('class', 'open-comments btn btn-warning');
+showCommentsBtn.setAttribute('type', 'button');
+showCommentsBtn.innerHTML = 'Comments';
+postsContainer.appendChild(showCommentsBtn);
+
+showCommentsBtn.addEventListener('click', () => {
+  const commentsClasses = commentsContainer.classList;
+  if (commentsClasses.contains('d-none')) { 
+      commentsClasses.remove('d-none'); 
+    } else {commentsClasses.add('d-none');
+  };
+});
+
