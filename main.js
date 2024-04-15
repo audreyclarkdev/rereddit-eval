@@ -1,188 +1,183 @@
-// Access the posts container/div
-const postsContainer = document.querySelector('.posts-container');
-// const commentsContainer = document.querySelector('.comments-container');
+// access the input fields for the post
+const textInput = document.getElementById('post-msg');
+const nameInput = document.getElementById('name');
 
-// Create an object to store posts
-const postsObj = {};
+// access the post container
+const postContainer = document.querySelector('.posts-container');
 
-// Function to add a new post
-const addPost = function (name, text) {
-  const postId = Object.keys(postsObj).length + 1;
-  postsObj[postId] = {
-    name,
-    text,
-    comments: [],
-  };
-  return postId;
-};
-
-// Function to display posts
-const displayPosts = function () {
-  let storedPosts = '';
-  for (const postId in postsObj) {
-    const post = postsObj[postId];
-    console.log({post});
-    storedPosts += `
-      <div id="${postId}" >
-        <p>${post.text}</p>
-        <p><strong>${'- Posted by '+ post.name}</strong></p>
-        <button class="open-comments btn btn-warning" onclick="displayCommentForm(${postId})">Comments</button>
-        <button class="delete-btn btn btn-danger pull-right fa-solid fa-delete-left"></button>
-        <div class="comments-container">
-          ${post.comments.map((comment) => `${comment}`).join('')}
-        </div>
-        <hr>
-      </div>
-    `;
-  }
-  postsContainer.innerHTML = storedPosts;
-};
-
-// Event listener for submitting a new post
+// add a new post by clicking the Submit Post button
 document.getElementById('submit-post').addEventListener('click', () => {
-  const postText = document.getElementById('post-msg').value;
-  const postName = document.getElementById('name').value;
 
-  if (postText !== '' && postName !== '') {
-    const postId = addPost(postName, postText);
-    displayPosts(postId);
-    document.getElementById('post-msg').value = '';
-    document.getElementById('name').value = '';
-  } else {
-    alert('Please fill in both fields.');
-  }
-});
+  const  postText = textInput.value;
+  const  postName = nameInput.value;
 
-// Event listener for deleting a post
-postsContainer.addEventListener('click', (event) => {
-  if (event.target.classList.contains('delete-btn')) {
-    const postId = event.target.parentElement.id;
-    delete postsObj[postId];
-    displayPosts();
-  }
-});
+  // text from the input added to the post container
+  const newPost = document.createElement('div');
+  const newPostTextEl = document.createElement('p');
+  const newPostTextNode = document.createTextNode(postText);
+  newPostTextEl.appendChild(newPostTextNode);
 
-// Function to show the comment input form
-const displayCommentForm = function (postId) {
-  // Create container for comments and the form for comments
-  const commentsContainer = document.getElementById(postId).getElementsByClassName('comments-container')[0];
-    let commentInputForm = document.createElement('div');
-    commentInputForm.innerHTML += `
-    <form style="margin-top: 30px" onsubmit="event.preventDefault();">
-      <div class="form-group">
-        <textarea
-          id="comment-msg-${postId}"
-          class="form-control"
-          type="text"
-          placeholder="Write a Comment"
-        ></textarea>
-      </div>
-      <div class="form-group">
-        <input
-          id="comment-name-${postId}"
-          class="form-control"
-          type="text"
-          placeholder="Your Name"
-        />
-      </div>
-    </form>
-    <button id="submit-comment" class="btn btn-primary" onclick="addComment(${postId})">Submit Comment</button>
-    <hr>`;
+  // name from the input added to the post container
+  const newPostNameEl = document.createElement('p');
+  const newPostNameNode = document.createTextNode('- Posted By: ' + postName);
+
+  // make the name element bold and appending
+  newPostNameEl.style.fontWeight = 'bold';
+  newPostNameEl.appendChild(newPostNameNode);
+
+  // create a break line between posts
+  const divider = document.createElement('hr');
   
-  commentsContainer.innerHTML += commentInputForm.innerHTML;
-};
-
-// Event Listener for submitting a comment 
-const addComment = function (postId) {
-  const commentText = document.getElementById('comment-msg-' + postId).value;
-  const commentName  = document.getElementById('comment-name-' + postId).value;
-
-  if (commentText !== '' && commentName !== '') {
-    if (postsObj[postId]) {
-    postsObj[postId].comments.push({ text: commentText, name: commentName });
-    displayComments(postId);
-    } else {
-    console.error(`Cannot submit this comment.`);
-    }
-    document.getElementById('comment-msg-' + postId).value = '';
-    document.getElementById('comment-name-' + postId).value = '';
-  } else {
-    alert('Please fill in both fields.');
-  }
-};
-
-// Function to display comments in the comments container
-const displayComments = function (postId) {
-  const post = postsObj[postId];
-  const commentsContainer = document.getElementById(postId).getElementsByClassName('comments-container')[0];
-  commentsContainer.innerHTML = ''; 
-
-  // Create a container for individual comments
-  const commentsList = document.createElement('div');
-  commentsList.classList.add('comments-list');
-  post.comments.forEach(comment => {
-    const commentItem = document.createElement('p');
-    commentItem.textContent = `${comment.text} - Posted by ${comment.name}`;
-    commentsList.appendChild(commentItem);
-  });
-
-  // toggle button on every post. Needs to be treated the same way as comments button
-};
-
-// create the submit comment button
-const submitCommentBtn = document.createElement('button');
-submitCommentBtn.setAttribute('id', 'submit-comment');
-submitCommentBtn.setAttribute('type', 'button');
-submitCommentBtn.setAttribute('class', 'btn btn-warning');
-submitCommentBtn.appendChild(document.createTextNode('Submit Comment'));
-
-// Event listener for submitting a new comment
-submitCommentBtn.addEventListener('click', () => {
-  const commentText = document.getElementById('`comment-msg-${postId}`').value;
-  const commentName = document.getElementById('comment-name').value;
-
-  if (commentText !== '' && commentName !== '') {
-    addComment(postId, comment);
-    document.getElementById('comment-msg').value = '';
-    document.getElementById('comment-name').value = '';
-  } else {
-    alert('Please fill in both fields.');
-  }
-
-    // Create a button that shows and hides the comments
-  });
-  
-  // const commentsBtn = document.createElement('button');
-  // commentsBtn.setAttribute('class', 'toggle-comments btn btn-warning btn-sm pull-right');
-  // commentsBtn.setAttribute('type', 'button');
-  // commentsBtn.addEventListener('click', () => {
-  //   console.log("it exists", commentsContainer)
-  //   const commentsClasses = commentsContainer.classList;
-  //   if (commentsClasses.contains('d-none')) { 
-  //       commentsClasses.remove('d-none'); 
-  //     } else {commentsClasses.add('d-none');
-  //   };
-  // });
-
-  // Create delete button, style it and add event listener to it
+  // create delete button and add event listener to it
   const deleteBtn = document.createElement('button');
-  deleteBtn.setAttribute('id', '`delete-btn-${postId}`');
+  deleteBtn.setAttribute('id', 'delete-btn');
   deleteBtn.setAttribute('type', 'button');
-  deleteBtn.setAttribute('class', 'btn btn-danger pull-right fa-solid fa-delete-left `delete-btn-${postId}`');
-  deleteBtn.addEventListener('click', function () {
-    this.parentElement.remove()
-  });
-
-  // Event listener for deleting a post and comment
-  deleteBtn.document.querySelector(`#delete-btn-${postId}`);
+  deleteBtn.setAttribute('class', 'btn btn-danger btn-sm fa-solid fa-delete-left pull-right delete-btn');
   deleteBtn.addEventListener('click', (event) => {
-    if(event.target.classList.contains('delete-btn-${postId}')) {
-      const container = event.target.parentElement;
-      commentsContainer.removeChild(container);
-      // this.parentElement.remove();
-    }
-commentsContainer.appendChild(commentsList);
-commentsList.appendChild(deleteBtn);
-commentsList.appendChild(commentsBtn);
+    event.target.parentElement.remove()
+  });
+  
+  // create a button that opens the comment form
+  const commentFormBtn = document.createElement('button');
+  commentFormBtn.setAttribute('class', 'comment-form btn btn-warning');
+  commentFormBtn.setAttribute('type', 'button');
+  commentFormBtn.innerHTML = 'Comments';
+  
+  // append post element, inputs, buttons, and hr into post div
+  newPost.append(newPostTextEl);
+  newPost.append(newPostNameEl);
+  newPost.append(commentFormBtn);
+  newPost.append(deleteBtn);
+  newPost.append(divider);
+  
+  // add the new post to the post container
+  postContainer.append(newPost);
 
+  // clear the input fields
+  textInput.value = '';
+  nameInput.value = '';
+
+  // create container for comments
+  const commentContainer = document.createElement('div');
+  commentContainer.setAttribute('class', 'comments-container');  
+
+  // event listener for the comment form button. When the button is clicked, create the comment form
+  commentFormBtn.addEventListener('click', () => {
+    if (commentContainer.firstChild) {
+      commentContainer.hidden = false;
+      return;
+    }
+  
+    console.log("comment form button is being pressed", commentFormBtn);
+  
+    // create the comment input form matching post form
+    const commentForm = document.createElement('form');
+    commentForm.setAttribute('style', 'margin-top: 30px');
+    commentForm.setAttribute('onsubmit', 'event.preventDefault();');
+    
+    // create the comment text element 
+    const commentTextForm = document.createElement('p');
+    commentTextForm.setAttribute('class', 'form-group');
+    
+    // create the comment textarea input field
+    const commentTextInput = document.createElement('textarea');
+    commentTextInput.setAttribute('id', 'comment-msg');
+    commentTextInput.setAttribute('type', 'text');
+    commentTextInput.setAttribute('class', 'form-control');
+    commentTextInput.setAttribute('placeholder', 'Write a comment');
+    
+    // create the comment name element
+    const commentNameForm = document.createElement('p');
+    commentNameForm.setAttribute('class', 'form-group');
+
+    // create the comment name input field
+    const commentNameInput = document.createElement('input');
+    commentNameInput.setAttribute('id', 'comment-name');
+    commentNameInput.setAttribute('type', 'text');
+    commentNameInput.setAttribute('class', 'form-control');
+    commentNameInput.setAttribute('placeholder', 'Your Name');
+    
+    // create the comment submit button
+    const submitCommentBtn = document.createElement('button');
+    submitCommentBtn.setAttribute('id', 'submit-comment');
+    submitCommentBtn.setAttribute('type', 'submit');
+    submitCommentBtn.setAttribute('class', 'btn btn-primary');
+    submitCommentBtn.innerHTML = 'Submit Comment';
+
+    // add event listener for the submit comment button
+    submitCommentBtn.addEventListener('click', () => {
+      const commentText = commentTextInput.value;
+      const commentName = commentNameInput.value;
+      
+      // create a new comments div for the comments to post to
+      const newComment = document.createElement('div');
+      const newCommentEl = document.createElement('p');
+      const newCommentTextNode = document.createTextNode(commentText + '  - Commented By: ' + commentName);
+      newCommentEl.appendChild(newCommentTextNode);
+
+      // create delete button for each comment
+      const deleteComment = document.createElement('button');
+      deleteComment.setAttribute('id', 'delete-comment');
+      deleteComment.setAttribute('class', 'btn btn-danger btn-sm pull-right fa-solid fa-delete-left');
+      deleteComment.setAttribute('type', 'button');
+      
+      // add event listener to button
+      deleteComment.addEventListener('click', (event) => {
+        event.target.parentElement.remove();
+      });
+      
+      // create button to toggle comments for each one
+      const hideCommentsBtn = document.createElement('button');
+      hideCommentsBtn.setAttribute('class', 'toggle-comments btn btn-warning btn-sm pull-right d-none');
+      hideCommentsBtn.setAttribute('type', 'button');
+      hideCommentsBtn.innerHTML = 'Hide Comments';
+
+      // add event listener for toggle button
+      hideCommentsBtn.addEventListener('click', () => {
+        const commentsClasses = commentContainer.classList;
+        if (commentsClasses.contains('d-none')) { 
+            commentsClasses.remove('d-none'); 
+          } else {commentsClasses.add('d-none');
+        };
+      });
+
+      // trying to get the comment container to post in correct order
+      // commentContainer.insertBefore(newComment, commentContainer.getElementsByTagName('form')[0]);
+    
+      // clear inputs after posting
+      commentTextInput.value = '';
+      commentNameInput.value = '';
+
+      // append comment inputs
+      commentTextForm.append(commentTextInput);
+      commentNameForm.append(commentNameInput);
+
+      // append comment elements and inputs to the comment form
+      commentForm.append(commentTextForm);
+      commentForm.append(commentNameForm);
+      commentForm.append(submitCommentBtn);
+      commentForm.append(hideCommentsBtn)
+      //newComment.append(commentForm);
+
+      // append comment elements and inputs to the comment container
+      newComment.append(newCommentEl);
+      newComment.append(deleteComment);
+
+      commentContainer.append(newComment);
+      newPost.append(commentContainer);
+
+    });
+  });
 });
+
+// functions to clear both inputs after posting
+// const clearPost = () => {
+//   postText = '';
+//   postName = '';
+// };
+
+// const clearComment = () => {
+//   commentText = '';
+//   commentName = '';
+// };
+
