@@ -65,9 +65,9 @@ document.getElementById('submit-post').addEventListener('click', () => {
   // create container for comments
   const commentContainer = document.createElement('div');
   commentContainer.setAttribute('class', 'comments-container');  
+  
   // append commentContainer to newPost
   newPost.append(commentContainer); 
-  // newPost.append(divider);
 
   // event listener for the comment form button. When the button is clicked, create the comment form
   commentFormBtn.addEventListener('click', () => {
@@ -109,6 +109,12 @@ document.getElementById('submit-post').addEventListener('click', () => {
     submitCommentBtn.setAttribute('type', 'submit');
     submitCommentBtn.setAttribute('class', 'btn btn-primary');
     submitCommentBtn.innerHTML = 'Submit Comment';
+
+    // create button to toggle comments for each one
+    const hideCommentsBtn = document.createElement('button');
+    hideCommentsBtn.setAttribute('class', 'toggle-comments btn btn-warning btn-sm');
+    hideCommentsBtn.setAttribute('type', 'button');
+    hideCommentsBtn.innerHTML = 'Hide Comments';
     
     // append comment elements and inputs to the comment form, and then to the comment container
     commentForm.append(commentTextForm);
@@ -132,29 +138,24 @@ document.getElementById('submit-post').addEventListener('click', () => {
       deleteComment.setAttribute('id', 'delete-comment');
       deleteComment.setAttribute('class', 'btn btn-danger btn-sm pull-right fa-solid fa-delete-left');
       deleteComment.setAttribute('type', 'button');
-      
-      // create button to toggle comments for each one
-      const hideCommentsBtn = document.createElement('button');
-      hideCommentsBtn.setAttribute('class', 'toggle-comments btn btn-warning btn-sm');
-      hideCommentsBtn.setAttribute('type', 'button');
-      hideCommentsBtn.innerHTML = 'Hide Comments';
 
       // create a new comments div for the comments to post to
       const newComment = document.createElement('div');
       const newCommentEl = document.createElement('p');
       const newCommentTextNode = document.createTextNode(commentText + '  - Commented By: ' + commentName);
       newCommentEl.appendChild(newCommentTextNode);
+      newCommentEl.append(deleteComment);
+      deleteComment.style.paddingBottom = '5px';
       newComment.append(newCommentEl);
-      newComment.append(deleteComment);
       newComment.append(hideCommentsBtn);
       newPost.append(newComment);
-      newComment.style.border = '1px solid white';
       newPost.append(divider);
+      divider.style.marginTop = '10px';
 
-      //commentContainer.append(newComment);
+      // add the new comment to the comment container above the comment form
+      commentContainer.insertBefore(newComment, commentContainer.getElementsByTagName('form')[0]);
       
       // clear inputs after posting
-      commentForm.style.display = 'none';
       commentTextInput.value = '';
       commentNameInput.value = '';
 
@@ -166,11 +167,6 @@ document.getElementById('submit-post').addEventListener('click', () => {
       // add event listener for toggle button
       hideCommentsBtn.addEventListener('click', (event) => {
         event.target.parentElement.hidden = true;
-        // const commentsClasses = commentContainer.classList;
-        // if (commentsClasses.contains('d-none')) { 
-        //     commentsClasses.remove('d-none'); 
-        //   } else {commentsClasses.add('d-none');
-        // };
       });
     });
   });

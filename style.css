@@ -10,7 +10,7 @@ body {
 }
 
 button {
-  margin: 3px;
+  margin: 8px;
 }
 
 form {
@@ -23,4 +23,5 @@ form {
 
 .comment-form {
   margin-top: 5px;
+  padding: 5px;
 }
