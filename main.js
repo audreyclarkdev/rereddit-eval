@@ -11,6 +11,12 @@ document.getElementById('submit-post').addEventListener('click', () => {
   const  postText = textInput.value;
   const  postName = nameInput.value;
 
+  // error handling for empty inputs
+  if (postText === '' || postName === '') {
+    alert('Please fill in both fields.');
+    return;
+  };
+
   // text from the input added to the post container
   const newPost = document.createElement('div');
   const newPostTextEl = document.createElement('p');
@@ -43,12 +49,11 @@ document.getElementById('submit-post').addEventListener('click', () => {
   commentFormBtn.setAttribute('type', 'button');
   commentFormBtn.innerHTML = 'Comments';
   
-  // append post element, inputs, buttons, and hr into post div
+  // append post element, inputs, buttons into post div
   newPost.append(newPostTextEl);
   newPost.append(newPostNameEl);
   newPost.append(commentFormBtn);
   newPost.append(deleteBtn);
-  newPost.append(divider);
   
   // add the new post to the post container
   postContainer.append(newPost);
@@ -60,15 +65,12 @@ document.getElementById('submit-post').addEventListener('click', () => {
   // create container for comments
   const commentContainer = document.createElement('div');
   commentContainer.setAttribute('class', 'comments-container');  
+  // append commentContainer to newPost
+  newPost.append(commentContainer); 
+  // newPost.append(divider);
 
   // event listener for the comment form button. When the button is clicked, create the comment form
   commentFormBtn.addEventListener('click', () => {
-    if (commentContainer.firstChild) {
-      commentContainer.hidden = false;
-      return;
-    }
-  
-    console.log("comment form button is being pressed", commentFormBtn);
   
     // create the comment input form matching post form
     const commentForm = document.createElement('form');
@@ -76,7 +78,7 @@ document.getElementById('submit-post').addEventListener('click', () => {
     commentForm.setAttribute('onsubmit', 'event.preventDefault();');
     
     // create the comment text element 
-    const commentTextForm = document.createElement('p');
+    const commentTextForm = document.createElement('div');
     commentTextForm.setAttribute('class', 'form-group');
     
     // create the comment textarea input field
@@ -87,7 +89,7 @@ document.getElementById('submit-post').addEventListener('click', () => {
     commentTextInput.setAttribute('placeholder', 'Write a comment');
     
     // create the comment name element
-    const commentNameForm = document.createElement('p');
+    const commentNameForm = document.createElement('div');
     commentNameForm.setAttribute('class', 'form-group');
 
     // create the comment name input field
@@ -96,24 +98,34 @@ document.getElementById('submit-post').addEventListener('click', () => {
     commentNameInput.setAttribute('type', 'text');
     commentNameInput.setAttribute('class', 'form-control');
     commentNameInput.setAttribute('placeholder', 'Your Name');
-    
+
+    // append comment inputs
+    commentTextForm.append(commentTextInput);
+    commentNameForm.append(commentNameInput);
+
     // create the comment submit button
     const submitCommentBtn = document.createElement('button');
     submitCommentBtn.setAttribute('id', 'submit-comment');
     submitCommentBtn.setAttribute('type', 'submit');
     submitCommentBtn.setAttribute('class', 'btn btn-primary');
     submitCommentBtn.innerHTML = 'Submit Comment';
-
+    
+    // append comment elements and inputs to the comment form, and then to the comment container
+    commentForm.append(commentTextForm);
+    commentForm.append(commentNameForm);
+    commentForm.append(submitCommentBtn);
+    commentContainer.append(commentForm);
+    
     // add event listener for the submit comment button
     submitCommentBtn.addEventListener('click', () => {
       const commentText = commentTextInput.value;
       const commentName = commentNameInput.value;
       
-      // create a new comments div for the comments to post to
-      const newComment = document.createElement('div');
-      const newCommentEl = document.createElement('p');
-      const newCommentTextNode = document.createTextNode(commentText + '  - Commented By: ' + commentName);
-      newCommentEl.appendChild(newCommentTextNode);
+      //error handling for a blank comment
+      if (commentText === '' || commentName === '') {
+        alert('Please fill in both fields.');
+        return;
+      };
 
       // create delete button for each comment
       const deleteComment = document.createElement('button');
@@ -121,63 +133,45 @@ document.getElementById('submit-post').addEventListener('click', () => {
       deleteComment.setAttribute('class', 'btn btn-danger btn-sm pull-right fa-solid fa-delete-left');
       deleteComment.setAttribute('type', 'button');
       
+      // create button to toggle comments for each one
+      const hideCommentsBtn = document.createElement('button');
+      hideCommentsBtn.setAttribute('class', 'toggle-comments btn btn-warning btn-sm');
+      hideCommentsBtn.setAttribute('type', 'button');
+      hideCommentsBtn.innerHTML = 'Hide Comments';
+
+      // create a new comments div for the comments to post to
+      const newComment = document.createElement('div');
+      const newCommentEl = document.createElement('p');
+      const newCommentTextNode = document.createTextNode(commentText + '  - Commented By: ' + commentName);
+      newCommentEl.appendChild(newCommentTextNode);
+      newComment.append(newCommentEl);
+      newComment.append(deleteComment);
+      newComment.append(hideCommentsBtn);
+      newPost.append(newComment);
+      newComment.style.border = '1px solid white';
+      newPost.append(divider);
+
+      //commentContainer.append(newComment);
+      
+      // clear inputs after posting
+      commentForm.style.display = 'none';
+      commentTextInput.value = '';
+      commentNameInput.value = '';
+
       // add event listener to button
       deleteComment.addEventListener('click', (event) => {
         event.target.parentElement.remove();
       });
-      
-      // create button to toggle comments for each one
-      const hideCommentsBtn = document.createElement('button');
-      hideCommentsBtn.setAttribute('class', 'toggle-comments btn btn-warning btn-sm pull-right d-none');
-      hideCommentsBtn.setAttribute('type', 'button');
-      hideCommentsBtn.innerHTML = 'Hide Comments';
 
       // add event listener for toggle button
-      hideCommentsBtn.addEventListener('click', () => {
-        const commentsClasses = commentContainer.classList;
-        if (commentsClasses.contains('d-none')) { 
-            commentsClasses.remove('d-none'); 
-          } else {commentsClasses.add('d-none');
-        };
+      hideCommentsBtn.addEventListener('click', (event) => {
+        event.target.parentElement.hidden = true;
+        // const commentsClasses = commentContainer.classList;
+        // if (commentsClasses.contains('d-none')) { 
+        //     commentsClasses.remove('d-none'); 
+        //   } else {commentsClasses.add('d-none');
+        // };
       });
-
-      // trying to get the comment container to post in correct order
-      // commentContainer.insertBefore(newComment, commentContainer.getElementsByTagName('form')[0]);
-    
-      // clear inputs after posting
-      commentTextInput.value = '';
-      commentNameInput.value = '';
-
-      // append comment inputs
-      commentTextForm.append(commentTextInput);
-      commentNameForm.append(commentNameInput);
-
-      // append comment elements and inputs to the comment form
-      commentForm.append(commentTextForm);
-      commentForm.append(commentNameForm);
-      commentForm.append(submitCommentBtn);
-      commentForm.append(hideCommentsBtn)
-      //newComment.append(commentForm);
-
-      // append comment elements and inputs to the comment container
-      newComment.append(newCommentEl);
-      newComment.append(deleteComment);
-
-      commentContainer.append(newComment);
-      newPost.append(commentContainer);
-
     });
   });
 });
-
-// functions to clear both inputs after posting
-// const clearPost = () => {
-//   postText = '';
-//   postName = '';
-// };
-
-// const clearComment = () => {
-//   commentText = '';
-//   commentName = '';
-// };
-
